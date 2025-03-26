@@ -7,7 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../models/timer_data.dart';
 import '../services/notification_service.dart';
 import '../services/timer_storage_service.dart';
-import '../widgets/time_selector.dart';
+import '../widgets/time_wheel_picker.dart';
 import '../widgets/timer_card.dart';
 
 class TimerListScreen extends StatefulWidget {
@@ -218,23 +218,48 @@ class _TimerListScreenState extends State<TimerListScreen> {
     int minutes = 0;
     int seconds = 0;
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
         final colorScheme = Theme.of(context).colorScheme;
 
         return StatefulBuilder(
           builder: (context, setState) {
-            return AlertDialog(
-              title: Text(
-                'Add New Timer',
-                style: TextStyle(color: colorScheme.onSurface),
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16,
+                right: 16,
+                top: 16,
               ),
-              surfaceTintColor: Colors.transparent,
-              content: SingleChildScrollView(
+              child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Add New Timer',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
                     TextField(
                       controller: labelController,
                       decoration: InputDecoration(
@@ -251,59 +276,32 @@ class _TimerListScreenState extends State<TimerListScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Duration',
+                    Text(
+                      'Duration',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           color: colorScheme.primary,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
 
-                    // Hours
-                    TimeSelector(
-                      label: 'Hours',
-                      value: hours,
-                      onDecrease:
-                          hours > 0 ? () => setState(() => hours--) : null,
-                      onIncrease: () => setState(() => hours++),
-                    ),
-
-                    // Minutes
-                    TimeSelector(
-                      label: 'Minutes',
-                      value: minutes,
-                      onDecrease:
-                          minutes > 0 ? () => setState(() => minutes--) : null,
-                      onIncrease:
-                          minutes < 59 ? () => setState(() => minutes++) : null,
+                    // iOS-style wheel picker for time selection
+                    TimeWheelPicker(
+                      hours: hours,
+                      minutes: minutes,
+                      seconds: seconds,
+                      onHoursChanged: (value) => setState(() => hours = value),
+                      onMinutesChanged:
+                          (value) => setState(() => minutes = value),
+                      onSecondsChanged:
+                          (value) => setState(() => seconds = value),
                     ),
 
-                    // Seconds
-                    TimeSelector(
-                      label: 'Seconds',
-                      value: seconds,
-                      onDecrease:
-                          seconds > 0 ? () => setState(() => seconds--) : null,
-                      onIncrease:
-                          seconds < 59 ? () => setState(() => seconds++) : null,
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'Cancel',
-                    style: TextStyle(color: colorScheme.primary),
-                  ),
-                ),
-                FilledButton(
+                    const SizedBox(height: 16),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
                   onPressed: () {
                     final label =
                         labelController.text.trim().isNotEmpty
@@ -312,9 +310,16 @@ class _TimerListScreenState extends State<TimerListScreen> {
                     _addTimer(label, hours, minutes, seconds);
                     Navigator.pop(context);
                   },
-                  child: const Text('Add'),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          child: Text('Add Timer'),
                 ),
-              ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
             );
           },
         );
