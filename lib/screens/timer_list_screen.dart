@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../models/timer_data.dart';
 import '../services/notification_service.dart';
+import '../services/timer_storage_service.dart';
 import '../widgets/time_selector.dart';
 import '../widgets/timer_card.dart';
 
@@ -21,11 +22,33 @@ class _TimerListScreenState extends State<TimerListScreen> {
   final bool _soundEnabled = true;
   Timer? _alarmTimer;
   final _notificationService = NotificationService();
+  final _storageService = TimerStorageService();
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _initNotifications();
+    _loadSavedTimers();
+  }
+
+  Future<void> _loadSavedTimers() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final savedTimers = await _storageService.loadTimers();
+
+    setState(() {
+      _timers.clear();
+      _timers.addAll(savedTimers);
+      _isLoading = false;
+    });
+  }
+
+  // Save timers to local storage
+  Future<void> _saveTimers() async {
+    await _storageService.saveTimers(_timers);
   }
 
   Future<void> _initNotifications() async {
@@ -93,6 +116,7 @@ class _TimerListScreenState extends State<TimerListScreen> {
         ),
       );
     });
+    _saveTimers(); // Save timers after adding a new one
   }
 
   void _deleteTimer(String id) {
@@ -111,6 +135,7 @@ class _TimerListScreenState extends State<TimerListScreen> {
         _timers.removeAt(index);
       }
     });
+    _saveTimers(); // Save timers after deleting one
   }
 
   void _toggleTimer(String id) {
@@ -125,6 +150,10 @@ class _TimerListScreenState extends State<TimerListScreen> {
             setState(() {
               if (timer.remainingSeconds > 0) {
                 timer.remainingSeconds--;
+                // Save timers periodically (every 30 seconds) to capture progress
+                if (timer.remainingSeconds % 30 == 0) {
+                  _saveTimers();
+                }
                 // Check if timer just finished
                 if (timer.remainingSeconds == 0) {
                   timer.isRunning = false;
@@ -132,6 +161,7 @@ class _TimerListScreenState extends State<TimerListScreen> {
                   timer.timer = null;
                   _playAlarmSound();
                   _showNotification(timer.id, timer.label);
+                  _saveTimers(); // Save when timer finishes
 
                   // Show in-app notification
                   if (mounted) {
@@ -153,6 +183,7 @@ class _TimerListScreenState extends State<TimerListScreen> {
         } else {
           timer.timer?.cancel();
           timer.timer = null;
+          _saveTimers(); // Save when timer is paused
         }
       }
     });
@@ -178,6 +209,7 @@ class _TimerListScreenState extends State<TimerListScreen> {
         }
       }
     });
+    _saveTimers(); // Save timers after resetting one
   }
 
   void _showAddTimerDialog() {
