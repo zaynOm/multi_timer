@@ -242,7 +242,7 @@ class _TimerListScreenState extends State<TimerListScreen> {
                         hintText: 'Enter a name for this timer',
                         filled: true,
                         fillColor: colorScheme.surfaceContainerHighest
-                            .withOpacity(0.3),
+                            .withValues(alpha: .3),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -327,13 +327,11 @@ class _TimerListScreenState extends State<TimerListScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Timers'),
-        backgroundColor: colorScheme.surfaceContainerHighest,
-        foregroundColor: colorScheme.onSurfaceVariant,
-      ),
-      body:
-          _timers.isEmpty
+      body: SafeArea(
+        child:
+            _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : _timers.isEmpty
               ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -341,7 +339,7 @@ class _TimerListScreenState extends State<TimerListScreen> {
                     Icon(
                       Icons.timer_outlined,
                       size: 64,
-                      color: colorScheme.primary.withOpacity(0.5),
+                        color: colorScheme.primary.withValues(alpha: .5),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -352,7 +350,9 @@ class _TimerListScreenState extends State<TimerListScreen> {
                     Text(
                       'Add a timer by tapping the + button below',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: .7,
+                          ),
                       ),
                     ),
                   ],
@@ -373,6 +373,7 @@ class _TimerListScreenState extends State<TimerListScreen> {
                     ),
                   );
                 },
+                ),
               ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddTimerDialog,

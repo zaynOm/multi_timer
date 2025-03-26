@@ -7,13 +7,8 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        backgroundColor: colorScheme.surfaceContainerHighest,
-        foregroundColor: colorScheme.onSurfaceVariant,
-      ),
-      body: ListView(
+    return SafeArea(
+      child: ListView(
         children: [
           const SizedBox(height: 8),
           Padding(
