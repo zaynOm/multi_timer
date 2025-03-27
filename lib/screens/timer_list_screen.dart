@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 import '../models/timer_data.dart';
 import '../services/notification_service.dart';
@@ -73,22 +74,15 @@ class _TimerListScreenState extends State<TimerListScreen> {
 
   void _playAlarmSound() {
     if (_soundEnabled) {
-      // Play system sound
-      SystemSound.play(SystemSoundType.alert);
-      // Add vibration for better notification
-      HapticFeedback.vibrate();
-
-      // Set up a repeating timer to play the alert sound multiple times
-      _alarmTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
-        SystemSound.play(SystemSoundType.alert);
-        HapticFeedback.vibrate();
-      });
+      // _stopAlarmSound();
+      print('Playing alarm sound');
+      FlutterRingtonePlayer().playAlarm();
     }
   }
 
   void _stopAlarmSound() {
-    _alarmTimer?.cancel();
-    _alarmTimer = null;
+    print('Stopping alarm sound');
+    FlutterRingtonePlayer().stop();
   }
 
   Future<void> _showNotification(String id, String timerLabel) async {
