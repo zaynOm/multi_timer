@@ -251,6 +251,7 @@ class _TimerListScreenState extends State<TimerListScreen> {
                     const SizedBox(height: 16),
                     TextField(
                       controller: labelController,
+                      textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
                         labelText: 'Timer Label',
                         hintText: 'Enter a name for this timer',
