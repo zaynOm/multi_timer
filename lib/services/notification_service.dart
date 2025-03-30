@@ -17,19 +17,15 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
 }
 
 class NotificationService {
-  static final NotificationService _instance = NotificationService._();
+  static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
-  NotificationService._();
+  NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
-  bool _isInitialized = false;
+  final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
+  bool _initialized = false;
 
-  // Initialize the notification service
-  Future<void> initialize({
-    Function(NotificationResponse)? onNotificationTap,
-    Function? stopSoundCallback,
-  }) async {
-    if (_isInitialized) return;
+  Future<void> initialize() async {
+    if (_initialized) return;
 
     // Set up isolate communication for background notifications
     final receivePort = ReceivePort();
@@ -37,8 +33,8 @@ class NotificationService {
 
     // Listen for messages from background isolate
     receivePort.listen((message) {
-      if (message == 'stop_alarm' && stopSoundCallback != null) {
-        stopSoundCallback();
+      if (message == 'stop_alarm' && _onStopAlarmCallback != null) {
+        _onStopAlarmCallback!();
       }
     });
 
@@ -48,78 +44,76 @@ class NotificationService {
       'Timer Alarms',
       description: 'Notifications for timer alarms',
       importance: Importance.max,
-      enableVibration: true,
       playSound: false,
-      showBadge: true,
     );
 
-    // Request notification permissions
-    await _notificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
-
-    // Create the notification channel
-    await _notificationsPlugin
+    await _notifications
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    // Initialize notification settings
-    const AndroidInitializationSettings androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
-    );
+    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const InitializationSettings initSettings = InitializationSettings(android: androidSettings);
+    const initSettings = InitializationSettings(android: androidSettings);
 
-    // Initialize with callbacks
-    await _notificationsPlugin.initialize(
+    await _notifications.initialize(
       initSettings,
-      onDidReceiveNotificationResponse: onNotificationTap,
+      onDidReceiveNotificationResponse: _onNotificationTapped,
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
 
-    _isInitialized = true;
+    await _setupNotificationActions();
+    _initialized = true;
   }
 
-  // Show a notification for a completed timer
+  Future<void> _setupNotificationActions() async {
+    // Request notification permission for Android 13+
+    await _notifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+  }
+
+  void _onNotificationTapped(NotificationResponse response) {
+    if (response.payload == 'stop_alarm' || response.actionId == stopSoundAction) {
+      if (_onStopAlarmCallback != null) {
+        _onStopAlarmCallback!();
+      }
+    }
+  }
+
+  Function? _onStopAlarmCallback;
+  void setOnStopAlarmCallback(Function callback) {
+    _onStopAlarmCallback = callback;
+  }
+
   Future<void> showTimerNotification({
     required int id,
     required String title,
     required String body,
-    required String payload,
+    String? payload,
   }) async {
-    if (!_isInitialized) return;
+    if (!_initialized) await initialize();
 
-    final List<AndroidNotificationAction> actions = [
-      const AndroidNotificationAction(
-        stopSoundAction,
-        'Stop',
-        showsUserInterface: false,
-        cancelNotification: true,
-      ),
-    ];
-
-    final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'timer_alarm_channel',
-      'Timer Alarms',
-      channelDescription: 'Notifications for timer alarms',
-      importance: Importance.high,
+    final androidDetails = const AndroidNotificationDetails(
+      'timer_channel',
+      'Timer Notifications',
+      channelDescription: 'Notifications for completed timers',
+      importance: Importance.max,
       priority: Priority.high,
-      actions: actions,
       playSound: false,
-      ongoing: true,
       category: AndroidNotificationCategory.alarm,
+      actions: [AndroidNotificationAction(stopSoundAction, 'Silence')],
     );
 
-    final NotificationDetails details = NotificationDetails(android: androidDetails);
+    final notificationDetails = NotificationDetails(android: androidDetails);
 
-    await _notificationsPlugin.show(id, title, body, details, payload: payload);
+    await _notifications.show(id, title, body, notificationDetails, payload: payload);
   }
 
   Future<void> cancelNotification(int id) async {
-    await _notificationsPlugin.cancel(id);
+    await _notifications.cancel(id);
   }
 
   Future<void> cancelAllNotifications() async {
-    await _notificationsPlugin.cancelAll();
+    await _notifications.cancelAll();
   }
 }

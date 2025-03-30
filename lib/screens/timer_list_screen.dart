@@ -1,12 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:provider/provider.dart';
 
-import '../models/timer_data.dart';
-import '../services/notification_service.dart';
-import '../services/timer_storage_service.dart';
+import '../services/timer_service.dart';
 import '../widgets/time_wheel_picker.dart';
 import '../widgets/timer_card.dart';
 
@@ -18,192 +13,10 @@ class TimerListScreen extends StatefulWidget {
 }
 
 class _TimerListScreenState extends State<TimerListScreen> {
-  final List<TimerData> _timers = [];
-  final bool _soundEnabled = true;
-  final _notificationService = NotificationService();
-  final _storageService = TimerStorageService();
-  bool _isLoading = true;
-
   @override
   void initState() {
     super.initState();
-    _initNotifications();
-    _loadSavedTimers();
-  }
-
-  Future<void> _loadSavedTimers() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    final savedTimers = await _storageService.loadTimers();
-
-    setState(() {
-      _timers.clear();
-      _timers.addAll(savedTimers);
-      _isLoading = false;
-    });
-  }
-
-  // Save timers to local storage
-  Future<void> _saveTimers() async {
-    await _storageService.saveTimers(_timers);
-  }
-
-  void _initNotifications() async {
-    await _notificationService.initialize(
-      onNotificationTap: (NotificationResponse response) {
-        if (response.actionId == stopSoundAction || response.payload == 'stop_alarm') {
-          _stopAlarmSound();
-        }
-      },
-      stopSoundCallback: _stopAlarmSound,
-    );
-  }
-
-  @override
-  void dispose() {
-    for (var timer in _timers) {
-      timer.timer?.cancel();
-    }
-    super.dispose();
-  }
-
-  void _playAlarmSound() {
-    if (_soundEnabled) {
-      _stopAlarmSound();
-      FlutterRingtonePlayer().playAlarm();
-    }
-  }
-
-  void _stopAlarmSound() {
-    FlutterRingtonePlayer().stop();
-  }
-
-  Future<void> _showNotification(String id, String timerLabel) async {
-    final int notificationId = int.parse(id.substring(0, 8), radix: 16) % 100000;
-
-    await _notificationService.showTimerNotification(
-      id: notificationId,
-      title: 'Timer Complete',
-      body: '$timerLabel has finished',
-      payload: 'stop_alarm',
-    );
-  }
-
-  void _addTimer(String label, int hours, int minutes, int seconds) {
-    final totalSeconds = hours * 3600 + minutes * 60 + seconds;
-    if (totalSeconds <= 0) return;
-
-    setState(() {
-      _timers.add(
-        TimerData(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          label: label,
-          totalSeconds: totalSeconds,
-        ),
-      );
-    });
-    _saveTimers();
-  }
-
-  void _deleteTimer(String id) {
-    setState(() {
-      final index = _timers.indexWhere((timer) => timer.id == id);
-      if (index != -1) {
-        // If this is the timer that's currently playing an alarm, stop it
-        if (_timers[index].remainingSeconds <= 0) {
-          _stopAlarmSound();
-          // Cancel any notifications for this timer
-          final int notificationId = int.parse(id.substring(0, 8), radix: 16) % 100000;
-          _notificationService.cancelNotification(notificationId);
-        }
-        _timers[index].timer?.cancel();
-        _timers.removeAt(index);
-      }
-    });
-    _saveTimers();
-  }
-
-  void _toggleTimer(String id) {
-    setState(() {
-      final index = _timers.indexWhere((timer) => timer.id == id);
-      if (index != -1) {
-        final timer = _timers[index];
-
-        // If the timer was completed and we're toggling it, make sure to stop any ongoing alarms
-        if (timer.remainingSeconds <= 0) {
-          _stopAlarmSound();
-          final int notificationId = int.parse(id.substring(0, 8), radix: 16) % 100000;
-          _notificationService.cancelNotification(notificationId);
-        }
-
-        timer.isRunning = !timer.isRunning;
-        if (timer.isRunning) {
-          timer.timer = Timer.periodic(const Duration(seconds: 1), (t) {
-            setState(() {
-              if (timer.remainingSeconds > 0) {
-                timer.remainingSeconds--;
-                // Save timers periodically (every 30 seconds) to capture progress
-                if (timer.remainingSeconds % 30 == 0) {
-                  _saveTimers();
-                }
-                // Check if timer just finished
-                if (timer.remainingSeconds == 0) {
-                  timer.isRunning = false;
-                  timer.timer?.cancel();
-                  timer.timer = null;
-                  _playAlarmSound();
-                  _showNotification(timer.id, timer.label);
-
-                  // Auto-reset the timer when it completes
-                  timer.remainingSeconds = timer.totalSeconds;
-
-                  _saveTimers(); // Save when timer finishes
-
-                  // Show in-app notification
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${timer.label} timer is complete!'),
-                        action: SnackBarAction(label: 'Stop', onPressed: _stopAlarmSound),
-                        duration: const Duration(seconds: 10),
-                      ),
-                    );
-                  }
-                }
-              }
-            });
-          });
-        } else {
-          timer.timer?.cancel();
-          timer.timer = null;
-          _saveTimers(); // Save when timer is paused
-        }
-      }
-    });
-  }
-
-  void _resetTimer(String id) {
-    setState(() {
-      final index = _timers.indexWhere((timer) => timer.id == id);
-      if (index != -1) {
-        final timer = _timers[index];
-        timer.timer?.cancel();
-        timer.timer = null;
-        timer.isRunning = false;
-        timer.remainingSeconds = timer.totalSeconds;
-
-        // If this timer was completed and might be playing an alarm, stop it
-        if (timer.remainingSeconds <= 0) {
-          _stopAlarmSound();
-          // Cancel any notifications for this timer
-          final int notificationId = int.parse(id.substring(0, 8), radix: 16) % 100000;
-          _notificationService.cancelNotification(notificationId);
-        }
-      }
-    });
-    _saveTimers(); // Save timers after resetting one
+    context.read<TimerService>().initialize();
   }
 
   void _showAddTimerDialog() {
@@ -265,7 +78,6 @@ class _TimerListScreenState extends State<TimerListScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // iOS-style wheel picker for time selection
                     TimeWheelPicker(
                       hours: hours,
                       minutes: minutes,
@@ -274,9 +86,7 @@ class _TimerListScreenState extends State<TimerListScreen> {
                       onMinutesChanged: (value) => setState(() => minutes = value),
                       onSecondsChanged: (value) => setState(() => seconds = value),
                     ),
-
                     const SizedBox(height: 16),
-
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
@@ -284,8 +94,8 @@ class _TimerListScreenState extends State<TimerListScreen> {
                           final label =
                               labelController.text.trim().isNotEmpty
                                   ? labelController.text.trim()
-                                  : 'Timer ${_timers.length + 1}';
-                          _addTimer(label, hours, minutes, seconds);
+                                  : 'Timer ${context.read<TimerService>().timers.length + 1}';
+                          context.read<TimerService>().addTimer(label, hours, minutes, seconds);
                           Navigator.pop(context);
                         },
                         child: const Padding(
@@ -311,47 +121,52 @@ class _TimerListScreenState extends State<TimerListScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child:
-            _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : _timers.isEmpty
-                ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.timer_outlined,
-                        size: 64,
-                        color: colorScheme.primary.withValues(alpha: .5),
+        child: Consumer<TimerService>(
+          builder: (context, timerService, child) {
+            final timers = timerService.timers;
+
+            if (timers.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.timer_outlined,
+                      size: 64,
+                      color: colorScheme.primary.withValues(alpha: .5),
+                    ),
+                    const SizedBox(height: 16),
+                    Text('No timers yet', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Add a timer by tapping the + button below',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: .7),
                       ),
-                      const SizedBox(height: 16),
-                      Text('No timers yet', style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Add a timer by tapping the + button below',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurfaceVariant.withValues(alpha: .7),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-                : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _timers.length,
-                  itemBuilder: (context, index) {
-                    final timer = _timers[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: TimerCard(
-                        timer: timer,
-                        onDelete: _deleteTimer,
-                        onToggle: _toggleTimer,
-                        onReset: _resetTimer,
-                      ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: timers.length,
+              itemBuilder: (context, index) {
+                final timer = timers[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: TimerCard(
+                    timer: timer,
+                    onDelete: (id) => timerService.deleteTimer(id),
+                    onToggle: (id) => timerService.toggleTimer(id),
+                    onReset: (id) => timerService.resetTimer(id),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddTimerDialog,

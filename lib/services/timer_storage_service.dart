@@ -6,49 +6,34 @@ import '../models/timer_data.dart';
 
 class TimerStorageService {
   static const String _timersKey = 'saved_timers';
+  final SharedPreferences _prefs;
 
-  // Save a list of timers to local storage
-  Future<bool> saveTimers(List<TimerData> timers) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final jsonData = timers.map((timer) => timer.toJson()).toList();
-      final jsonString = jsonEncode(jsonData);
+  static final TimerStorageService _instance = TimerStorageService._internal();
+  static SharedPreferences? _prefsInstance;
 
-      return await prefs.setString(_timersKey, jsonString);
-    } catch (e) {
-      print('Error saving timers: $e');
-      return false;
+  factory TimerStorageService() {
+    if (_prefsInstance == null) {
+      throw StateError('SharedPreferences not initialized. Call initializePrefs() first.');
     }
+    return _instance;
   }
 
-  // Load timers from local storage
+  TimerStorageService._internal() : _prefs = _prefsInstance!;
+
+  static Future<void> initializePrefs() async {
+    _prefsInstance = await SharedPreferences.getInstance();
+  }
+
   Future<List<TimerData>> loadTimers() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final jsonString = prefs.getString(_timersKey);
+    final String? timersJson = _prefs.getString(_timersKey);
+    if (timersJson == null) return [];
 
-      if (jsonString == null || jsonString.isEmpty) {
-        return [];
-      }
-
-      final jsonData = jsonDecode(jsonString) as List;
-      return jsonData
-          .map((item) => TimerData.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      print('Error loading timers: $e');
-      return [];
-    }
+    final List<dynamic> decoded = jsonDecode(timersJson);
+    return decoded.map((json) => TimerData.fromJson(json)).toList();
   }
 
-  // Clear all saved timers
-  Future<bool> clearTimers() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      return await prefs.remove(_timersKey);
-    } catch (e) {
-      print('Error clearing timers: $e');
-      return false;
-    }
+  Future<void> saveTimers(List<TimerData> timers) async {
+    final String encoded = jsonEncode(timers.map((timer) => timer.toJson()).toList());
+    await _prefs.setString(_timersKey, encoded);
   }
 }
