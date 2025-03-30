@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../services/theme_service.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -6,6 +9,18 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final themeService = context.watch<ThemeService>();
+
+    String getThemeText(ThemeMode mode) {
+      switch (mode) {
+        case ThemeMode.system:
+          return 'System';
+        case ThemeMode.light:
+          return 'Light';
+        case ThemeMode.dark:
+          return 'Dark';
+      }
+    }
 
     return SafeArea(
       child: ListView(
@@ -15,29 +30,46 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text(
               'Appearance',
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
             ),
           ),
           ListTile(
             leading: Icon(Icons.brightness_6, color: colorScheme.primary),
             title: const Text('Theme'),
-            subtitle: const Text('Light, dark, or system default'),
+            subtitle: Text(getThemeText(themeService.themeMode)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // TODO: Implement theme selection
+              showDialog(
+                context: context,
+                builder:
+                    (context) => SimpleDialog(
+                      title: const Text('Select Theme'),
+                      children:
+                          ThemeMode.values
+                              .map(
+                                (mode) => RadioListTile<ThemeMode>(
+                                  title: Text(getThemeText(mode)),
+                                  value: mode,
+                                  groupValue: themeService.themeMode,
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      themeService.setThemeMode(value);
+                                    }
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              )
+                              .toList(),
+                    ),
+              );
             },
           ),
           const Divider(),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text(
               'Notifications',
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
             ),
           ),
           SwitchListTile(
@@ -64,9 +96,7 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text(
               'About',
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
             ),
           ),
           ListTile(

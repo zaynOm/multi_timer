@@ -3,34 +3,47 @@ import 'package:provider/provider.dart';
 
 import 'screens/home_screen.dart';
 import 'services/notification_service.dart';
+import 'services/theme_service.dart';
 import 'services/timer_service.dart';
 import 'services/timer_storage_service.dart';
 import 'theme.dart';
 
 void main() async {
-  // Ensure Flutter is initialized before doing anything with plugins
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize services
-  await TimerStorageService.initializePrefs();
+  final themeService = ThemeService();
+  await themeService.initialize();
+
+  final timerStorage = TimerStorageService();
+  await timerStorage.initialize();
+
   await NotificationService().initialize();
-  runApp(const MyApp());
+
+  runApp(MyApp(themeService: themeService));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ThemeService themeService;
+
+  const MyApp({super.key, required this.themeService});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => TimerService(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Multi Timer',
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        home: const HomeScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TimerService()),
+        ChangeNotifierProvider.value(value: themeService),
+      ],
+      child: Consumer<ThemeService>(
+        builder:
+            (context, themeService, _) => MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'Multi Timer',
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: themeService.themeMode,
+              home: const HomeScreen(),
+            ),
       ),
     );
   }
