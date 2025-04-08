@@ -2,24 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/timer_service.dart';
+import '../widgets/empty_state.dart';
 import '../widgets/time_wheel_picker.dart';
 import '../widgets/timer_card.dart';
 
-class TimerListScreen extends StatefulWidget {
+class TimerListScreen extends StatelessWidget {
   const TimerListScreen({super.key});
 
-  @override
-  State<TimerListScreen> createState() => _TimerListScreenState();
-}
-
-class _TimerListScreenState extends State<TimerListScreen> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<TimerService>().initialize();
-  }
-
-  void _showAddTimerDialog() {
+  void _showAddTimerDialog(BuildContext context) {
     final labelController = TextEditingController();
     int hours = 0;
     int minutes = 0;
@@ -117,8 +107,6 @@ class _TimerListScreenState extends State<TimerListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       body: SafeArea(
         child: Consumer<TimerService>(
@@ -126,26 +114,10 @@ class _TimerListScreenState extends State<TimerListScreen> {
             final timers = timerService.timers;
 
             if (timers.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.timer_outlined,
-                      size: 64,
-                      color: colorScheme.primary.withValues(alpha: .5),
-                    ),
-                    const SizedBox(height: 16),
-                    Text('No timers yet', style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Add a timer by tapping the + button below',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant.withValues(alpha: .7),
-                      ),
-                    ),
-                  ],
-                ),
+              return const EmptyState(
+                icon: Icons.timer_outlined,
+                title: 'No timers yet',
+                message: 'Add a timer by tapping the + button below',
               );
             }
 
@@ -169,7 +141,7 @@ class _TimerListScreenState extends State<TimerListScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddTimerDialog,
+        onPressed: () => _showAddTimerDialog(context),
         tooltip: 'Add Timer',
         child: const Icon(Icons.add),
       ),

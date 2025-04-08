@@ -14,11 +14,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = const [
-    TimerListScreen(),
-    PresetsScreen(),
-    SettingsScreen(),
-  ];
+  final List<Widget> _screens = const [TimerListScreen(), PresetsScreen(), SettingsScreen()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -36,17 +32,14 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
           border: Border(
-            top: BorderSide(
-              color: colorScheme.outline.withOpacity(0.3),
-              width: .3,
-            ),
+            top: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3), width: .3),
           ),
         ),
         child: NavigationBar(
           selectedIndex: _selectedIndex,
           onDestinationSelected: _onItemTapped,
           backgroundColor: Colors.transparent,
-          indicatorColor: colorScheme.primary.withOpacity(0.2),
+          indicatorColor: colorScheme.primary.withValues(alpha: 0.2),
           elevation: 0,
           height: 80,
           destinations: const [

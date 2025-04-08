@@ -19,7 +19,7 @@ class TimerStorageService {
 
   Future<void> initialize() async {
     if (_initialized) return;
-    _prefs = await SharedPreferencesService.instance;
+    _prefs = SharedPreferencesService.instance;
     _initialized = true;
   }
 

@@ -24,9 +24,9 @@ class TimerCard extends StatelessWidget {
     final isCompleted = timer.remainingSeconds <= 0;
     final cardColor =
         isCompleted
-            ? colorScheme.primaryContainer.withOpacity(0.7)
+            ? colorScheme.primaryContainer.withValues(alpha: 0.7)
             : timer.isRunning
-            ? colorScheme.secondaryContainer.withOpacity(0.7)
+            ? colorScheme.secondaryContainer.withValues(alpha: 0.7)
             : colorScheme.surfaceContainerHighest;
 
     return Card(
@@ -61,10 +61,7 @@ class TimerCard extends StatelessWidget {
               timer.formattedTime,
               style: textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.w500,
-                color:
-                    isCompleted
-                        ? colorScheme.onPrimaryContainer
-                        : colorScheme.onSurface,
+                color: isCompleted ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 16),
@@ -72,10 +69,7 @@ class TimerCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 FilledButton.tonalIcon(
-                  onPressed:
-                      timer.remainingSeconds > 0
-                          ? () => onToggle(timer.id)
-                          : null,
+                  onPressed: timer.remainingSeconds > 0 ? () => onToggle(timer.id) : null,
                   icon: Icon(timer.isRunning ? Icons.pause : Icons.play_arrow),
                   label: Text(timer.isRunning ? 'Pause' : 'Start'),
                 ),

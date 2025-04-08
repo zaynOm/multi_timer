@@ -10,7 +10,7 @@ class ThemeService extends ChangeNotifier {
 
   Future<void> initialize() async {
     if (_initialized) return;
-    _prefs = await SharedPreferencesService.instance;
+    _prefs = SharedPreferencesService.instance;
     final savedTheme = _prefs.getString(_themeKey);
     if (savedTheme != null) {
       _themeMode = ThemeMode.values.firstWhere(
