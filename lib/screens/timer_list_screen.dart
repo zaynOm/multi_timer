@@ -13,7 +13,8 @@ class TimerListScreen extends StatelessWidget {
     final labelController = TextEditingController();
     int hours = 0;
     int minutes = 0;
-    int seconds = 0;
+    int seconds = 5;
+    String? errorMessage;
 
     showModalBottomSheet(
       context: context,
@@ -23,6 +24,28 @@ class TimerListScreen extends StatelessWidget {
 
         return StatefulBuilder(
           builder: (context, setState) {
+            // Validate timer duration
+            bool isTimeSet() {
+              return hours > 0 || minutes > 0 || seconds > 0;
+            }
+
+            void addTimer() {
+              if (!isTimeSet()) {
+                setState(() {
+                  errorMessage = 'Please set a duration for the timer';
+                });
+                return;
+              }
+
+              final label =
+                  labelController.text.trim().isNotEmpty
+                      ? labelController.text.trim()
+                      : 'Timer ${context.read<TimerService>().timers.length + 1}';
+
+              context.read<TimerService>().addTimer(label, hours, minutes, seconds);
+              Navigator.pop(context);
+            }
+
             return Padding(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -72,22 +95,35 @@ class TimerListScreen extends StatelessWidget {
                       hours: hours,
                       minutes: minutes,
                       seconds: seconds,
-                      onHoursChanged: (value) => setState(() => hours = value),
-                      onMinutesChanged: (value) => setState(() => minutes = value),
-                      onSecondsChanged: (value) => setState(() => seconds = value),
+                      onHoursChanged:
+                          (value) => setState(() {
+                            hours = value;
+                            if (errorMessage != null) errorMessage = null;
+                          }),
+                      onMinutesChanged:
+                          (value) => setState(() {
+                            minutes = value;
+                            if (errorMessage != null) errorMessage = null;
+                          }),
+                      onSecondsChanged:
+                          (value) => setState(() {
+                            seconds = value;
+                            if (errorMessage != null) errorMessage = null;
+                          }),
                     ),
+                    if (errorMessage != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          errorMessage!,
+                          style: TextStyle(color: colorScheme.error, fontSize: 14),
+                        ),
+                      ),
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: () {
-                          final label =
-                              labelController.text.trim().isNotEmpty
-                                  ? labelController.text.trim()
-                                  : 'Timer ${context.read<TimerService>().timers.length + 1}';
-                          context.read<TimerService>().addTimer(label, hours, minutes, seconds);
-                          Navigator.pop(context);
-                        },
+                        onPressed: addTimer,
                         child: const Padding(
                           padding: EdgeInsets.symmetric(vertical: 12),
                           child: Text('Add Timer'),
