@@ -121,19 +121,22 @@ class TimerListScreen extends StatelessWidget {
               );
             }
 
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
+            return GridView.builder(
+              padding: const EdgeInsets.all(12),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 0.8,
+              ),
               itemCount: timers.length,
               itemBuilder: (context, index) {
                 final timer = timers[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: TimerCard(
-                    timer: timer,
-                    onDelete: (id) => timerService.deleteTimer(id),
-                    onToggle: (id) => timerService.toggleTimer(id),
-                    onReset: (id) => timerService.resetTimer(id),
-                  ),
+                return TimerCard(
+                  timer: timer,
+                  onDelete: (id) => timerService.deleteTimer(id),
+                  onToggle: (id) => timerService.toggleTimer(id),
+                  onReset: (id) => timerService.resetTimer(id),
                 );
               },
             );

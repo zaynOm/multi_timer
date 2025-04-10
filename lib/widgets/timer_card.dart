@@ -34,51 +34,53 @@ class TimerCard extends StatelessWidget {
       color: cardColor,
       clipBehavior: Clip.hardEdge,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Stack(
+              alignment: Alignment.center,
               children: [
-                Expanded(
-                  child: Text(
-                    timer.label,
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                SizedBox(
+                  width: 90,
+                  height: 90,
+                  child: CircularProgressIndicator(
+                    value: timer.remainingSeconds / timer.totalSeconds,
+                    strokeWidth: 7,
+                    color: isCompleted ? colorScheme.primary : colorScheme.secondary,
+                    backgroundColor: colorScheme.surfaceContainerHighest,
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.delete_outline, color: colorScheme.error),
-                  onPressed: () => onDelete(timer.id),
+                Text(
+                  timer.formattedTime,
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: isCompleted ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Text(
-              timer.formattedTime,
-              style: textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: isCompleted ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
+              timer.label,
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
               ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FilledButton.tonalIcon(
+                IconButton(
                   onPressed: timer.remainingSeconds > 0 ? () => onToggle(timer.id) : null,
                   icon: Icon(timer.isRunning ? Icons.pause : Icons.play_arrow),
-                  label: Text(timer.isRunning ? 'Pause' : 'Start'),
                 ),
                 const SizedBox(width: 16),
-                OutlinedButton.icon(
-                  onPressed: () => onReset(timer.id),
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Reset'),
-                ),
+                IconButton(onPressed: () => onReset(timer.id), icon: const Icon(Icons.refresh)),
               ],
             ),
           ],
