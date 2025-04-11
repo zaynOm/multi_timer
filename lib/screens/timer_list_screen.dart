@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 
 import '../services/timer_service.dart';
@@ -16,6 +17,22 @@ class TimerListScreen extends StatelessWidget {
     int seconds = 5;
     String? errorMessage;
 
+    // Default color options
+    final List<Color> colorOptions = [
+      Colors.blue,
+      Colors.red,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.teal,
+      Colors.amber,
+      Colors.pink,
+    ];
+
+    // Selected color (default to first)
+    Color selectedColor = colorOptions[0];
+    bool isCustomColor = false;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -24,6 +41,41 @@ class TimerListScreen extends StatelessWidget {
 
         return StatefulBuilder(
           builder: (context, setState) {
+            // Show color picker dialog
+            void showCustomColorPicker() {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Pick a color'),
+                    content: SingleChildScrollView(
+                      child: ColorPicker(
+                        pickerColor: selectedColor,
+                        onColorChanged: (Color color) {
+                          setState(() {
+                            selectedColor = color;
+                            isCustomColor = true;
+                          });
+                        },
+                        pickerAreaHeightPercent: 0.8,
+                        labelTypes: const [],
+                        displayThumbColor: true,
+                        portraitOnly: true,
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        child: const Text('Done'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+
             // Validate timer duration
             bool isTimeSet() {
               return hours > 0 || minutes > 0 || seconds > 0;
@@ -42,7 +94,13 @@ class TimerListScreen extends StatelessWidget {
                       ? labelController.text.trim()
                       : 'Timer ${context.read<TimerService>().timers.length + 1}';
 
-              context.read<TimerService>().addTimer(label, hours, minutes, seconds);
+              context.read<TimerService>().addTimer(
+                label,
+                hours,
+                minutes,
+                seconds,
+                color: selectedColor,
+              );
               Navigator.pop(context);
             }
 
@@ -82,7 +140,6 @@ class TimerListScreen extends StatelessWidget {
                         labelText: 'Timer Label',
                         hintText: 'Enter a name for this timer',
                         filled: true,
-                        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: .3),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -111,6 +168,112 @@ class TimerListScreen extends StatelessWidget {
                             if (errorMessage != null) errorMessage = null;
                           }),
                     ),
+                    SizedBox(
+                      height: 50,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              clipBehavior: Clip.none,
+                              children: [
+                                // Pre-defined colors
+                                ...colorOptions.map((color) {
+                                  final isSelected =
+                                      !isCustomColor &&
+                                      selectedColor.toARGB32() == color.toARGB32();
+
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    child: GestureDetector(
+                                      onTap:
+                                          () => setState(() {
+                                            selectedColor = color;
+                                            isCustomColor = false;
+                                          }),
+                                      child: Container(
+                                        width: 50,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          color: color,
+                                          shape: BoxShape.circle,
+                                          border:
+                                              isSelected
+                                                  ? Border.all(
+                                                    color: colorScheme.onSurface,
+                                                    width: 3,
+                                                  )
+                                                  : null,
+                                        ),
+                                        child:
+                                            isSelected
+                                                ? Icon(
+                                                  Icons.check,
+                                                  color:
+                                                      color.computeLuminance() > 0.5
+                                                          ? Colors.black
+                                                          : Colors.white,
+                                                )
+                                                : null,
+                                      ),
+                                    ),
+                                  );
+                                }),
+
+                                // Custom color picker option
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  child: GestureDetector(
+                                    onTap: showCustomColorPicker,
+                                    child: Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        gradient: const RadialGradient(
+                                          colors: [Colors.red, Colors.green, Colors.blue],
+                                          stops: [0.0, 0.5, 1.0],
+                                        ),
+                                        shape: BoxShape.circle,
+                                        border:
+                                            isCustomColor
+                                                ? Border.all(color: colorScheme.onSurface, width: 3)
+                                                : null,
+                                      ),
+                                      child: const Icon(Icons.color_lens, color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+
+                                // Current custom color display
+                                if (isCustomColor)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    child: Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: selectedColor,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: colorScheme.onSurface, width: 1),
+                                      ),
+                                      child: Icon(
+                                        Icons.check,
+                                        color:
+                                            selectedColor.computeLuminance() > 0.5
+                                                ? Colors.black
+                                                : Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     if (errorMessage != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),

@@ -46,8 +46,8 @@ class TimerCard extends StatelessWidget {
                   height: 90,
                   child: CircularProgressIndicator(
                     value: timer.remainingSeconds / timer.totalSeconds,
-                    strokeWidth: 7,
-                    color: isCompleted ? colorScheme.primary : colorScheme.secondary,
+                    strokeWidth: 8,
+                    color: isCompleted ? colorScheme.primary : timer.color,
                     backgroundColor: colorScheme.surfaceContainerHighest,
                   ),
                 ),

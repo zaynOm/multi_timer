@@ -1,19 +1,26 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+
 class TimerData {
   final String id;
   final String label;
-  int remainingSeconds;
   final int totalSeconds;
+  int remainingSeconds;
   bool isRunning;
   Timer? timer;
+  final Color color; // Added color property
 
   TimerData({
     required this.id,
     required this.label,
     required this.totalSeconds,
+    this.remainingSeconds = 0,
     this.isRunning = false,
-  }) : remainingSeconds = totalSeconds;
+    this.color = Colors.blue, // Default color
+  }) {
+    remainingSeconds = totalSeconds;
+  }
 
   String get formattedTime {
     final hours = remainingSeconds ~/ 3600;
@@ -35,6 +42,7 @@ class TimerData {
       'remainingSeconds': remainingSeconds,
       'totalSeconds': totalSeconds,
       'isRunning': false, // Always save timers as paused
+      'color': color.toARGB32(), // Save color as an integer value
     };
   }
 
@@ -45,6 +53,7 @@ class TimerData {
       label: json['label'],
       totalSeconds: json['totalSeconds'],
       isRunning: false, // Always load timers as paused
+      color: Color(json['color']), // Load color from integer value
     );
     // Handle remaining seconds separately to keep any progress
     timer.remainingSeconds = json['remainingSeconds'];

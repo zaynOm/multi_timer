@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 import '../models/timer_data.dart';
@@ -38,19 +38,33 @@ class TimerService extends ChangeNotifier {
     await _storageService.saveTimers(_timers);
   }
 
-  void addTimer(String label, int hours, int minutes, int seconds) {
+  // Add a new timer
+  void addTimer(String label, int hours, int minutes, int seconds, {Color? color}) {
     final totalSeconds = hours * 3600 + minutes * 60 + seconds;
-    if (totalSeconds <= 0) return;
-
-    _timers.add(
-      TimerData(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        label: label,
-        totalSeconds: totalSeconds,
-      ),
+    final newTimer = TimerData(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      label: label,
+      totalSeconds: totalSeconds,
+      color: color ?? _getNextColor(), // Use provided color or get next color
     );
+    _timers.add(newTimer);
     _saveTimers();
     notifyListeners();
+  }
+
+  // Helper method to get a color from our predefined list
+  Color _getNextColor() {
+    final colors = [
+      Colors.blue,
+      Colors.red,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.teal,
+      Colors.amber,
+      Colors.pink,
+    ];
+    return colors[_timers.length % colors.length];
   }
 
   void deleteTimer(String id) {
