@@ -44,11 +44,21 @@ class TimerCard extends StatelessWidget {
                 SizedBox(
                   width: 90,
                   height: 90,
-                  child: CircularProgressIndicator(
-                    value: timer.remainingSeconds / timer.totalSeconds,
-                    strokeWidth: 8,
-                    color: isCompleted ? colorScheme.primary : timer.color,
-                    backgroundColor: colorScheme.surfaceContainerHighest,
+                  child: TweenAnimationBuilder<double>(
+                    duration: const Duration(milliseconds: 300),
+                    tween: Tween<double>(
+                      begin: (timer.remainingSeconds + 1) / timer.totalSeconds,
+                      end: timer.remainingSeconds / timer.totalSeconds,
+                    ),
+                    builder: (context, value, _) {
+                      return CircularProgressIndicator(
+                        value: value,
+                        strokeWidth: 8,
+                        strokeCap: StrokeCap.round,
+                        color: isCompleted ? colorScheme.primary : timer.color,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                      );
+                    },
                   ),
                 ),
                 Text(
