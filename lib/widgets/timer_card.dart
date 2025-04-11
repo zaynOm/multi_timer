@@ -87,10 +87,16 @@ class TimerCard extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: timer.remainingSeconds > 0 ? () => onToggle(timer.id) : null,
-                  icon: Icon(timer.isRunning ? Icons.pause : Icons.play_arrow),
+                  icon: Icon(timer.isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded),
                 ),
-                const SizedBox(width: 16),
-                IconButton(onPressed: () => onReset(timer.id), icon: const Icon(Icons.refresh)),
+                IconButton(
+                  onPressed: () => onReset(timer.id),
+                  icon: const Icon(Icons.refresh_rounded),
+                ),
+                IconButton(
+                  onPressed: () => onDelete(timer.id),
+                  icon: Icon(Icons.delete_rounded, color: colorScheme.error),
+                ),
               ],
             ),
           ],
