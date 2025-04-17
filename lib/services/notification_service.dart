@@ -51,7 +51,7 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings('ic_stat_notification');
 
     const initSettings = InitializationSettings(android: androidSettings);
 
@@ -97,6 +97,7 @@ class NotificationService {
       'timer_channel',
       'Timer Notifications',
       channelDescription: 'Notifications for completed timers',
+      color: Color(0xFF549ee1),
       importance: Importance.max,
       priority: Priority.high,
       playSound: false,
