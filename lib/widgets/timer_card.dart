@@ -65,6 +65,7 @@ class TimerCard extends StatelessWidget {
                   timer.formattedTime,
                   style: textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w500,
+                    fontSize: timer.formattedTime.length > 5 ? 20 : 28,
                     color: isCompleted ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
                   ),
                 ),

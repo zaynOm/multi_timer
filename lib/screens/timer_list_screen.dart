@@ -320,13 +320,14 @@ class TimerListScreen extends StatelessWidget {
               );
             }
 
+            final orientation = MediaQuery.of(context).orientation;
             return GridView.builder(
               padding: const EdgeInsets.all(12),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: orientation == Orientation.landscape ? 3 : 2,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
-                childAspectRatio: 0.8,
+                childAspectRatio: orientation == Orientation.landscape ? 1.2 : 0.8,
               ),
               itemCount: timers.length,
               itemBuilder: (context, index) {
