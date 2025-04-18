@@ -1,5 +1,5 @@
 name: multi_timer
-description: "A new Flutter project."
+description: "Multi Timer Plus – A powerful visual timer app for productivity and focus."
 
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
@@ -35,5 +35,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  assets:
-    - assets/sounds/
+#  assets:
+#    - assets/sounds/
