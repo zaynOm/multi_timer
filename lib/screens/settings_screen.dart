@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../services/theme_service.dart';
 
@@ -98,6 +99,14 @@ class SettingsScreen extends StatelessWidget {
               'About',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
             ),
+          ),
+          ListTile(
+            leading: Icon(Icons.policy, color: colorScheme.primary),
+            title: const Text('Privacy Policy'),
+            subtitle: const Text('Read our privacy policy'),
+            onTap: () async {
+              await launchUrl(Uri.parse("https://visual-timer-plus.netlify.app"));
+            },
           ),
           ListTile(
             leading: Icon(Icons.info, color: colorScheme.primary),
