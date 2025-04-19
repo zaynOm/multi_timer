@@ -27,5 +27,6 @@ class ServiceLocator {
     await getIt<ThemeService>().initialize();
     await getIt<TimerStorageService>().initialize();
     await getIt<NotificationService>().initialize();
+    await getIt<TimerProvider>().initialize();
   }
 }
