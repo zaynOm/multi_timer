@@ -1,13 +1,13 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesService {
-  static SharedPreferences? _instance;
+  static SharedPreferencesAsync? _instance;
 
   static Future<void> initialize() async {
-    _instance ??= await SharedPreferences.getInstance();
+    _instance ??= SharedPreferencesAsync();
   }
 
-  static SharedPreferences get instance {
+  static SharedPreferencesAsync get instance {
     if (_instance == null) {
       throw Exception('SharedPreferencesService not initialized. Call initialize() first.');
     }

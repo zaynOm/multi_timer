@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 import '../models/timer_data.dart';
-import 'notification_service.dart';
-import 'timer_storage_service.dart';
+import '../services/notification_service.dart';
+import '../services/timer_storage_service.dart';
 
-class TimerService extends ChangeNotifier {
+class TimerProvider extends ChangeNotifier {
   final List<TimerData> _timers = [];
-  final TimerStorageService _storageService = TimerStorageService();
-  final NotificationService _notificationService = NotificationService();
+  final TimerStorageService _storageService;
+  final NotificationService _notificationService;
   final bool _soundEnabled = true;
   bool _isInitialized = false;
 
-  TimerService() {
+  TimerProvider(this._storageService, this._notificationService) {
     _notificationService.setOnStopAlarmCallback(_stopAlarmSound);
   }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../services/theme_service.dart';
+import '../providers/settings_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -10,7 +10,9 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final themeService = context.watch<ThemeService>();
+    final themeService = context.watch<SettingsProvider>();
+    // bool isSoundEnabled = themeService.isSoundEnabled;
+    // bool isVibrationEnabled = themeService.isVibrationEnabled;
 
     String getThemeText(ThemeMode mode) {
       switch (mode) {
@@ -65,33 +67,33 @@ class SettingsScreen extends StatelessWidget {
               );
             },
           ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              'Notifications',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
-            ),
-          ),
-          SwitchListTile(
-            title: const Text('Sound'),
-            subtitle: const Text('Play sound when timer completes'),
-            secondary: Icon(Icons.volume_up, color: colorScheme.primary),
-            value: true,
-            onChanged: (value) {
-              // TODO: Implement sound toggle
-            },
-          ),
-          SwitchListTile(
-            title: const Text('Vibration'),
-            subtitle: const Text('Vibrate when timer completes'),
-            secondary: Icon(Icons.vibration, color: colorScheme.primary),
-            value: true,
-            onChanged: (value) {
-              // TODO: Implement vibration toggle
-            },
-          ),
 
+          // const Divider(),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          //   child: Text(
+          //     'Notifications',
+          //     style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
+          //   ),
+          // ),
+          // SwitchListTile(
+          //   title: const Text('Sound'),
+          //   subtitle: const Text('Play sound when timer completes'),
+          //   secondary: Icon(Icons.volume_up, color: colorScheme.primary),
+          //   value: isSoundEnabled,
+          //   onChanged: (value) {
+          //     themeService.toggleSound(value);
+          //   },
+          // ),
+          // SwitchListTile(
+          //   title: const Text('Vibration'),
+          //   subtitle: const Text('Vibrate when timer completes'),
+          //   secondary: Icon(Icons.vibration, color: colorScheme.primary),
+          //   value: isVibrationEnabled,
+          //   onChanged: (value) {
+          //     themeService.toggleVibration(value);
+          //   },
+          // ),
           const Divider(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

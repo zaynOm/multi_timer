@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 
-import '../services/timer_service.dart';
+import '../providers/timers_provider.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/time_wheel_picker.dart';
 import '../widgets/timer_card.dart';
@@ -92,9 +92,9 @@ class TimerListScreen extends StatelessWidget {
               final label =
                   labelController.text.trim().isNotEmpty
                       ? labelController.text.trim()
-                      : 'Timer ${context.read<TimerService>().timers.length + 1}';
+                      : 'Timer ${context.read<TimerProvider>().timers.length + 1}';
 
-              context.read<TimerService>().addTimer(
+              context.read<TimerProvider>().addTimer(
                 label,
                 hours,
                 minutes,
@@ -308,7 +308,7 @@ class TimerListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Consumer<TimerService>(
+        child: Consumer<TimerProvider>(
           builder: (context, timerService, child) {
             final timers = timerService.timers;
 

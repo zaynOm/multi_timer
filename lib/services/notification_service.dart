@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:multi_timer/providers/settings_provider.dart';
 
 const String stopSoundAction = 'stop_sound_action';
 
@@ -17,12 +18,13 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
 }
 
 class NotificationService {
-  static final NotificationService _instance = NotificationService._internal();
-  factory NotificationService() => _instance;
-  NotificationService._internal();
-
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
+  // ignore: unused_field
+  final SettingsProvider _settingsProvider;
   bool _initialized = false;
+  Function? _onStopAlarmCallback;
+
+  NotificationService(this._settingsProvider);
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -80,7 +82,6 @@ class NotificationService {
     }
   }
 
-  Function? _onStopAlarmCallback;
   void setOnStopAlarmCallback(Function callback) {
     _onStopAlarmCallback = callback;
   }
@@ -101,6 +102,7 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.high,
       playSound: false,
+      // enableVibration: _settingsProvider.isVibrationEnabled,
       category: AndroidNotificationCategory.alarm,
       actions: [AndroidNotificationAction(stopSoundAction, 'Silence')],
     );

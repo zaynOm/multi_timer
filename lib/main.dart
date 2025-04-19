@@ -6,11 +6,11 @@ import 'package:multi_timer/firebase_options.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
+import 'providers/settings_provider.dart';
+import 'providers/timers_provider.dart';
 import 'services/service_locator.dart';
-import 'services/theme_service.dart';
-import 'services/timer_service.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (kReleaseMode) {
@@ -29,8 +29,8 @@ void main() async {
 
   final app = MultiProvider(
     providers: [
-      ChangeNotifierProvider.value(value: getIt<ThemeService>()),
-      ChangeNotifierProvider.value(value: getIt<TimerService>()),
+      ChangeNotifierProvider.value(value: getIt<SettingsProvider>()),
+      ChangeNotifierProvider.value(value: getIt<TimerProvider>()),
     ],
     child: const AppRoot(),
   );

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'providers/settings_provider.dart';
 import 'screens/home_screen.dart';
-import 'services/theme_service.dart';
 import 'theme.dart';
 
 class AppRoot extends StatelessWidget {
@@ -12,7 +12,7 @@ class AppRoot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Colors.transparent));
-    return Consumer<ThemeService>(
+    return Consumer<SettingsProvider>(
       builder:
           (context, themeService, _) => MaterialApp(
             debugShowCheckedModeBanner: false,
