@@ -61,6 +61,27 @@ android {
         }
     }
 
+    flavorDimensions += "default"
+    productFlavors {
+        create("dev") {
+            dimension = "default"
+            applicationIdSuffix = ".dev"
+            resValue(
+                type = "string",
+                name = "app_name",
+                value = "Flavors dev"
+            )
+        }
+        create("prod") {
+            dimension = "default"
+            resValue(
+                type = "string",
+                name = "app_name",
+                value = "Visual Timer Plus"
+            )
+        }
+    }
+
     sourceSets {
         getByName("main") {
             res.srcDirs("src/main/res", "src/main/res/drawable")

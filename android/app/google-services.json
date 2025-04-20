@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:791554081116:android:72497e079ebe8801eec199",
+        "android_client_info": {
+          "package_name": "com.anzatech.multi_timer.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAABQ3kdS4OhWj_f9hwV02fotCmbE60UIc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:791554081116:android:dde8c4e6ee0d21d5eec199",
         "android_client_info": {
           "package_name": "com.anzatech.multi_timer"
