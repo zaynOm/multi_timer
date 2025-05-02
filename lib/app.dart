@@ -11,7 +11,13 @@ class AppRoot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+    final String theme = context.watch<SettingsProvider>().themeMode.toString();
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: theme.contains('dark') ? Brightness.light : Brightness.dark,
+      ),
+    );
     return Consumer<SettingsProvider>(
       builder:
           (context, themeService, _) => MaterialApp(
