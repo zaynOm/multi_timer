@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TimeSelector extends StatelessWidget {
   final String label;
@@ -17,35 +18,32 @@ class TimeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(vertical: context.h(8.0)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 16)),
+          Text(label, style: TextStyle(fontSize: context.sp(16))),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
                 icon: const Icon(Icons.remove),
                 onPressed: onDecrease,
-                iconSize: 20,
+                iconSize: context.r(20),
                 visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.all(4),
+                padding: EdgeInsets.all(context.r(4)),
               ),
               Container(
-                width: 40,
+                width: context.w(40),
                 alignment: Alignment.center,
-                child: Text(
-                  value.toString(),
-                  style: const TextStyle(fontSize: 16),
-                ),
+                child: Text(value.toString(), style: TextStyle(fontSize: context.sp(16))),
               ),
               IconButton(
                 icon: const Icon(Icons.add),
                 onPressed: onIncrease,
-                iconSize: 20,
+                iconSize: context.r(20),
                 visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.all(4),
+                padding: EdgeInsets.all(context.r(4)),
               ),
             ],
           ),

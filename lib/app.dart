@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/settings_provider.dart';
@@ -18,16 +19,25 @@ class AppRoot extends StatelessWidget {
         statusBarIconBrightness: theme.contains('dark') ? Brightness.light : Brightness.dark,
       ),
     );
-    return Consumer<SettingsProvider>(
-      builder:
-          (context, themeService, _) => MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'Multi Timer',
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: themeService.themeMode,
-            home: const HomeScreen(),
-          ),
+
+    return ScreenUtil(
+      options: ScreenUtilOptions(
+        designSize: const Size(376, 872),
+        fontFactorByWidth: 2.0,
+        fontFactorByHeight: 1.0,
+        flipSizeWhenLandscape: true,
+      ),
+      child: Consumer<SettingsProvider>(
+        builder:
+            (context, themeService, _) => MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'Multi Timer',
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: themeService.themeMode,
+              home: const HomeScreen(),
+            ),
+      ),
     );
   }
 }

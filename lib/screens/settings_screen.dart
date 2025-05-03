@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -28,30 +29,39 @@ class SettingsScreen extends StatelessWidget {
     return SafeArea(
       child: ListView(
         children: [
-          const SizedBox(height: 8),
+          SizedBox(height: context.h(8)),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: context.w(16), vertical: context.h(8)),
             child: Text(
               'Appearance',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: colorScheme.primary,
+                fontSize: context.sp(Theme.of(context).textTheme.titleSmall?.fontSize ?? 14.0),
+              ),
             ),
           ),
           ListTile(
-            leading: Icon(Icons.brightness_6, color: colorScheme.primary),
-            title: const Text('Theme'),
-            subtitle: Text(getThemeText(themeService.themeMode)),
-            trailing: const Icon(Icons.chevron_right),
+            leading: Icon(Icons.brightness_6, color: colorScheme.primary, size: context.r(24)),
+            title: Text('Theme', style: TextStyle(fontSize: context.sp(16))),
+            subtitle: Text(
+              getThemeText(themeService.themeMode),
+              style: TextStyle(fontSize: context.sp(14)),
+            ),
+            trailing: Icon(Icons.chevron_right, size: context.r(24)),
             onTap: () {
               showDialog(
                 context: context,
                 builder:
                     (context) => SimpleDialog(
-                      title: const Text('Select Theme'),
+                      title: Text('Select Theme', style: TextStyle(fontSize: context.sp(18))),
                       children:
                           ThemeMode.values
                               .map(
                                 (mode) => RadioListTile<ThemeMode>(
-                                  title: Text(getThemeText(mode)),
+                                  title: Text(
+                                    getThemeText(mode),
+                                    style: TextStyle(fontSize: context.sp(16)),
+                                  ),
                                   value: mode,
                                   groupValue: themeService.themeMode,
                                   onChanged: (value) {
@@ -96,24 +106,27 @@ class SettingsScreen extends StatelessWidget {
           // ),
           const Divider(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: context.w(16), vertical: context.h(8)),
             child: Text(
               'About',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: colorScheme.primary,
+                fontSize: context.sp(Theme.of(context).textTheme.titleSmall?.fontSize ?? 14.0),
+              ),
             ),
           ),
           ListTile(
-            leading: Icon(Icons.policy, color: colorScheme.primary),
-            title: const Text('Privacy Policy'),
-            subtitle: const Text('Read our privacy policy'),
+            leading: Icon(Icons.policy, color: colorScheme.primary, size: context.r(24)),
+            title: Text('Privacy Policy', style: TextStyle(fontSize: context.sp(16))),
+            subtitle: Text('Read our privacy policy', style: TextStyle(fontSize: context.sp(14))),
             onTap: () async {
               await launchUrl(Uri.parse("https://visual-timer-plus.netlify.app"));
             },
           ),
           ListTile(
-            leading: Icon(Icons.info, color: colorScheme.primary),
-            title: const Text('App version'),
-            subtitle: const Text('1.0.0'),
+            leading: Icon(Icons.info, color: colorScheme.primary, size: context.r(24)),
+            title: Text('App version', style: TextStyle(fontSize: context.sp(16))),
+            subtitle: Text('1.0.0', style: TextStyle(fontSize: context.sp(14))),
           ),
         ],
       ),

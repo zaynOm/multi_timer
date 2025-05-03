@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Add import
 import 'package:provider/provider.dart';
 
 import '../providers/timers_provider.dart';
@@ -36,6 +37,7 @@ class TimerListScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) {
         final colorScheme = Theme.of(context).colorScheme;
 
@@ -107,9 +109,9 @@ class TimerListScreen extends StatelessWidget {
             return Padding(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
-                left: 16,
-                right: 16,
-                top: 16,
+                left: context.w(16),
+                right: context.w(16),
+                top: context.h(16),
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -132,7 +134,7 @@ class TimerListScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: context.h(16)),
                     TextField(
                       controller: labelController,
                       textCapitalization: TextCapitalization.sentences,
@@ -141,13 +143,13 @@ class TimerListScreen extends StatelessWidget {
                         hintText: 'Enter a name for this timer',
                         filled: true,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(context.r(12)),
                           borderSide: BorderSide.none,
                         ),
                         floatingLabelBehavior: FloatingLabelBehavior.auto,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: context.h(24)),
                     TimeWheelPicker(
                       hours: hours,
                       minutes: minutes,
@@ -169,14 +171,14 @@ class TimerListScreen extends StatelessWidget {
                           }),
                     ),
                     SizedBox(
-                      height: 50,
+                      height: context.h(50),
                       child: Row(
                         children: [
                           Expanded(
                             child: ListView(
                               scrollDirection: Axis.horizontal,
                               physics: const BouncingScrollPhysics(),
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              padding: EdgeInsets.symmetric(horizontal: context.w(4)),
                               clipBehavior: Clip.none,
                               children: [
                                 // Pre-defined colors
@@ -186,7 +188,7 @@ class TimerListScreen extends StatelessWidget {
                                       selectedColor.toARGB32() == color.toARGB32();
 
                                   return Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    padding: EdgeInsets.symmetric(horizontal: context.w(4)),
                                     child: GestureDetector(
                                       onTap:
                                           () => setState(() {
@@ -194,8 +196,8 @@ class TimerListScreen extends StatelessWidget {
                                             isCustomColor = false;
                                           }),
                                       child: Container(
-                                        width: 50,
-                                        height: 50,
+                                        width: context.r(50),
+                                        height: context.r(50),
                                         decoration: BoxDecoration(
                                           color: color,
                                           shape: BoxShape.circle,
@@ -203,7 +205,7 @@ class TimerListScreen extends StatelessWidget {
                                               isSelected
                                                   ? Border.all(
                                                     color: colorScheme.onSurface,
-                                                    width: 3,
+                                                    width: context.w(3),
                                                   )
                                                   : null,
                                         ),
@@ -224,12 +226,12 @@ class TimerListScreen extends StatelessWidget {
 
                                 // Custom color picker option
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  padding: EdgeInsets.symmetric(horizontal: context.w(4)),
                                   child: GestureDetector(
                                     onTap: showCustomColorPicker,
                                     child: Container(
-                                      width: 50,
-                                      height: 50,
+                                      width: context.r(50),
+                                      height: context.r(50),
                                       decoration: BoxDecoration(
                                         gradient: const RadialGradient(
                                           colors: [Colors.red, Colors.green, Colors.blue],
@@ -238,7 +240,10 @@ class TimerListScreen extends StatelessWidget {
                                         shape: BoxShape.circle,
                                         border:
                                             isCustomColor
-                                                ? Border.all(color: colorScheme.onSurface, width: 3)
+                                                ? Border.all(
+                                                  color: colorScheme.onSurface,
+                                                  width: context.w(3),
+                                                )
                                                 : null,
                                       ),
                                       child: const Icon(Icons.color_lens, color: Colors.white),
@@ -249,14 +254,17 @@ class TimerListScreen extends StatelessWidget {
                                 // Current custom color display
                                 if (isCustomColor)
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    padding: EdgeInsets.symmetric(horizontal: context.w(4)),
                                     child: Container(
-                                      width: 50,
-                                      height: 50,
+                                      width: context.r(50),
+                                      height: context.r(50),
                                       decoration: BoxDecoration(
                                         color: selectedColor,
                                         shape: BoxShape.circle,
-                                        border: Border.all(color: colorScheme.onSurface, width: 1),
+                                        border: Border.all(
+                                          color: colorScheme.onSurface,
+                                          width: context.w(1),
+                                        ),
                                       ),
                                       child: Icon(
                                         Icons.check,
@@ -276,24 +284,24 @@ class TimerListScreen extends StatelessWidget {
 
                     if (errorMessage != null)
                       Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
+                        padding: EdgeInsets.only(top: context.h(8.0)),
                         child: Text(
                           errorMessage!,
-                          style: TextStyle(color: colorScheme.error, fontSize: 14),
+                          style: TextStyle(color: colorScheme.error, fontSize: context.sp(14)),
                         ),
                       ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: context.h(16)),
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
                         onPressed: addTimer,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          child: Text('Add Timer'),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: context.h(12)),
+                          child: const Text('Add Timer'),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: context.h(16)),
                   ],
                 ),
               ),
@@ -322,12 +330,12 @@ class TimerListScreen extends StatelessWidget {
 
             final orientation = MediaQuery.of(context).orientation;
             return GridView.builder(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(context.w(12)),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: orientation == Orientation.landscape ? 3 : 2,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: orientation == Orientation.landscape ? 1.2 : 0.8,
+                crossAxisSpacing: context.w(8),
+                mainAxisSpacing: context.h(8),
+                childAspectRatio: orientation == Orientation.landscape ? 1.1 : 0.8,
               ),
               itemCount: timers.length,
               itemBuilder: (context, index) {

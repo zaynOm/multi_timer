@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../models/timer_data.dart';
 
@@ -34,16 +35,17 @@ class TimerCard extends StatelessWidget {
       color: cardColor,
       clipBehavior: Clip.hardEdge,
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: EdgeInsets.all(context.r(10)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Stack(
               alignment: Alignment.center,
               children: [
                 SizedBox(
-                  width: 90,
-                  height: 90,
+                  width: context.r(110),
+                  height: context.r(110),
                   child: TweenAnimationBuilder<double>(
                     duration: const Duration(milliseconds: 300),
                     tween: Tween<double>(
@@ -53,7 +55,7 @@ class TimerCard extends StatelessWidget {
                     builder: (context, value, _) {
                       return CircularProgressIndicator(
                         value: value,
-                        strokeWidth: 8,
+                        strokeWidth: context.r(5),
                         strokeCap: StrokeCap.round,
                         color: isCompleted ? colorScheme.primary : timer.color,
                         backgroundColor: colorScheme.surfaceContainerHighest,
@@ -65,36 +67,43 @@ class TimerCard extends StatelessWidget {
                   timer.formattedTime,
                   style: textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w500,
-                    fontSize: timer.formattedTime.length > 5 ? 20 : 28,
+                    fontSize: timer.formattedTime.length > 5 ? context.sp(20) : context.sp(28),
                     color: isCompleted ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: context.r(12)),
             Text(
               timer.label,
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: colorScheme.onSurface,
+                fontSize: context.sp(18.0),
               ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: context.r(8)),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
                   onPressed: timer.remainingSeconds > 0 ? () => onToggle(timer.id) : null,
                   icon: Icon(timer.isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded),
                 ),
                 IconButton(
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
                   onPressed: () => onReset(timer.id),
-                  icon: const Icon(Icons.refresh_rounded),
+                  icon: Icon(Icons.refresh_rounded),
                 ),
                 IconButton(
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
                   onPressed: () => onDelete(timer.id),
                   icon: Icon(Icons.delete_rounded, color: colorScheme.error),
                 ),

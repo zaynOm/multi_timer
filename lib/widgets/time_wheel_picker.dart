@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TimeWheelPicker extends StatelessWidget {
   final int hours;
@@ -25,8 +26,8 @@ class TimeWheelPicker extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      height: 150,
-      margin: const EdgeInsets.symmetric(vertical: 16),
+      height: context.h(150),
+      margin: EdgeInsets.symmetric(vertical: context.h(16)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -78,7 +79,7 @@ class TimeWheelPicker extends StatelessWidget {
         child: Text(
           index.toString().padLeft(2, '0'),
           style: TextStyle(
-            fontSize: 26,
+            fontSize: context.sp(26),
             fontWeight: FontWeight.w500,
             color: colorScheme.onSurface,
           ),
@@ -93,14 +94,14 @@ class TimeWheelPicker extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: context.sp(14),
               fontWeight: FontWeight.w500,
               color: colorScheme.primary,
             ),
           ),
           Expanded(
             child: CupertinoPicker(
-              itemExtent: 46,
+              itemExtent: context.h(46),
               magnification: 1.2,
               squeeze: 1.1,
               diameterRatio: 1.8,
