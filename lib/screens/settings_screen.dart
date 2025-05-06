@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:multi_timer/config.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -126,7 +127,7 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.info, color: colorScheme.primary, size: context.r(24)),
             title: Text('App version', style: TextStyle(fontSize: context.sp(16))),
-            subtitle: Text('1.0.0', style: TextStyle(fontSize: context.sp(14))),
+            subtitle: Text(appVersion, style: TextStyle(fontSize: context.sp(14))),
           ),
         ],
       ),
