@@ -10,6 +10,7 @@ class TimerData {
   bool isRunning;
   Timer? timer;
   final Color color; // Added color property
+  DateTime? scheduledFinishTimeUtc;
 
   TimerData({
     required this.id,
@@ -18,6 +19,7 @@ class TimerData {
     this.remainingSeconds = 0,
     this.isRunning = false,
     this.color = Colors.blue, // Default color
+    this.scheduledFinishTimeUtc,
   }) {
     remainingSeconds = totalSeconds;
   }
@@ -43,6 +45,7 @@ class TimerData {
       'totalSeconds': totalSeconds,
       'isRunning': false, // Always save timers as paused
       'color': color.toARGB32(), // Save color as an integer value
+      'scheduledFinishTimeUtc': scheduledFinishTimeUtc?.toIso8601String(),
     };
   }
 
@@ -54,6 +57,10 @@ class TimerData {
       totalSeconds: json['totalSeconds'],
       isRunning: false, // Always load timers as paused
       color: Color(json['color']), // Load color from integer value
+      scheduledFinishTimeUtc:
+          json['scheduledFinishTimeUtc'] != null
+              ? DateTime.parse(json['scheduledFinishTimeUtc'])
+              : null,
     );
     // Handle remaining seconds separately to keep any progress
     timer.remainingSeconds = json['remainingSeconds'];

@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:multi_timer/providers/settings_provider.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 const String stopSoundAction = 'stop_sound_action';
 
@@ -46,7 +47,8 @@ class NotificationService {
       'Timer Alarms',
       description: 'Notifications for timer alarms',
       importance: Importance.max,
-      playSound: false,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('alarm_sound'),
     );
 
     await _notifications
@@ -72,6 +74,9 @@ class NotificationService {
     await _notifications
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.requestNotificationsPermission();
+    await _notifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestExactAlarmsPermission();
   }
 
   void _onNotificationTapped(NotificationResponse response) {
@@ -110,6 +115,50 @@ class NotificationService {
     final notificationDetails = NotificationDetails(android: androidDetails);
 
     await _notifications.show(id, title, body, notificationDetails, payload: payload);
+  }
+
+  Future<void> scheduleTimerNotification({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduledDateTime,
+    String? payload,
+  }) async {
+    if (!_initialized) await initialize();
+
+    // Ensure the scheduledDateTime is in the future
+    if (scheduledDateTime.isBefore(DateTime.now())) {
+      // Optionally handle this case, e.g., show immediately or log an error
+      // For now, we'll just show it immediately if it's in the past
+      await showTimerNotification(id: id, title: title, body: body, payload: payload);
+      return;
+    }
+
+    final androidDetails = const AndroidNotificationDetails(
+      'timer_alarm_channel', // Use the same channel as initialized
+      'Timer Alarms',
+      channelDescription: 'Notifications for timer alarms',
+      color: Color(0xFF549ee1),
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true, // Ensure sound is enabled for scheduled notifications
+      sound: RawResourceAndroidNotificationSound('alarm_sound'), // Match channel sound
+      // enableVibration: _settingsProvider.isVibrationEnabled, // Consider settings
+      category: AndroidNotificationCategory.alarm,
+      actions: [AndroidNotificationAction(stopSoundAction, 'Silence')],
+    );
+
+    final notificationDetails = NotificationDetails(android: androidDetails);
+
+    await _notifications.zonedSchedule(
+      id,
+      title,
+      body,
+      tz.TZDateTime.from(scheduledDateTime, tz.local),
+      notificationDetails,
+      payload: payload,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
   }
 
   Future<void> cancelNotification(int id) async {

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_timer/firebase_options.dart';
 import 'package:provider/provider.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 import 'app.dart';
 import 'providers/settings_provider.dart';
@@ -12,6 +13,7 @@ import 'services/service_locator.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
 
   if (kReleaseMode) {
     // Initialize Firebase
