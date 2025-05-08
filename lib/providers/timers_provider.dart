@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 import '../models/timer_data.dart';
 import '../services/notification_service.dart';
@@ -11,12 +10,9 @@ class TimerProvider extends ChangeNotifier {
   final List<TimerData> _timers = [];
   final TimerStorageService _storageService;
   final NotificationService _notificationService;
-  final bool _soundEnabled = true;
   bool _isInitialized = false;
 
-  TimerProvider(this._storageService, this._notificationService) {
-    _notificationService.setOnStopAlarmCallback(_stopAlarmSound);
-  }
+  TimerProvider(this._storageService, this._notificationService);
 
   List<TimerData> get timers => List.unmodifiable(_timers);
 
@@ -118,7 +114,6 @@ class TimerProvider extends ChangeNotifier {
     final index = _timers.indexWhere((timer) => timer.id == id);
     if (index != -1) {
       final timer = _timers[index];
-      _stopAlarmSound(); // Stop sound if it was playing due to this timer
       _cancelOSNotification(timer);
       timer.timer?.cancel();
       _timers.removeAt(index);
@@ -141,7 +136,6 @@ class TimerProvider extends ChangeNotifier {
           timer.timer?.cancel();
           timer.timer = null;
           timer.scheduledFinishTimeUtc = null; // Clear scheduled time
-          _playAlarmSound(); // Play sound if app is active
           // UI notification is less critical now, OS notification is primary
           // _showUiNotification(timer.id, timer.label);
           timer.remainingSeconds = timer.totalSeconds; // Reset for next run
@@ -167,7 +161,6 @@ class TimerProvider extends ChangeNotifier {
 
       // If timer finished and is being toggled, it means user wants to restart or stop alarm
       if (timer.remainingSeconds <= 0 && !timer.isRunning) {
-        _stopAlarmSound();
         _cancelOSNotification(timer); // Cancel any lingering OS notification
         timer.remainingSeconds = timer.totalSeconds; // Reset before starting
       }
@@ -209,7 +202,6 @@ class TimerProvider extends ChangeNotifier {
       timer.timer = null;
       timer.isRunning = false;
       timer.remainingSeconds = timer.totalSeconds;
-      _stopAlarmSound();
       _cancelOSNotification(timer);
       timer.scheduledFinishTimeUtc = null; // Clear scheduled time on reset
       _saveTimers();
@@ -239,17 +231,6 @@ class TimerProvider extends ChangeNotifier {
     // timer.scheduledFinishTimeUtc = null; // Clearing this here might be too aggressive,
     // let save/load handle persistence.
     // It's cleared on explicit reset/delete or completion.
-  }
-
-  void _playAlarmSound() {
-    if (_soundEnabled) {
-      _stopAlarmSound();
-      FlutterRingtonePlayer().playAlarm(looping: true);
-    }
-  }
-
-  void _stopAlarmSound() {
-    FlutterRingtonePlayer().stop();
   }
 
   @override

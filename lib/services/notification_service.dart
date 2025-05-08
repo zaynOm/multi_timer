@@ -1,4 +1,3 @@
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -10,10 +9,6 @@ const String stopSoundAction = 'stop_sound_action';
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse notificationResponse) {
   if (notificationResponse.actionId == stopSoundAction) {
-    final SendPort? sendPort = IsolateNameServer.lookupPortByName('alarm_stop_port');
-    if (sendPort != null) {
-      sendPort.send('stop_alarm');
-    }
     FlutterLocalNotificationsPlugin().cancel(notificationResponse.id ?? 0);
   }
 }
@@ -23,23 +18,15 @@ class NotificationService {
   // ignore: unused_field
   final SettingsProvider _settingsProvider;
   bool _initialized = false;
-  Function? _onStopAlarmCallback;
+
+  static const String _channelId = 'timer_alarm_channel';
+  static const String _channelName = 'Timer Alarms';
+  static const String _channelDescription = 'Notifications for timer alarms';
 
   NotificationService(this._settingsProvider);
 
   Future<void> initialize() async {
     if (_initialized) return;
-
-    // Set up isolate communication for background notifications
-    final receivePort = ReceivePort();
-    IsolateNameServer.registerPortWithName(receivePort.sendPort, 'alarm_stop_port');
-
-    // Listen for messages from background isolate
-    receivePort.listen((message) {
-      if (message == 'stop_alarm' && _onStopAlarmCallback != null) {
-        _onStopAlarmCallback!();
-      }
-    });
 
     // Create notification channel for Android
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -79,16 +66,21 @@ class NotificationService {
         ?.requestExactAlarmsPermission();
   }
 
-  void _onNotificationTapped(NotificationResponse response) {
-    if (response.payload == 'stop_alarm' || response.actionId == stopSoundAction) {
-      if (_onStopAlarmCallback != null) {
-        _onStopAlarmCallback!();
-      }
-    }
-  }
+  void _onNotificationTapped(NotificationResponse response) {}
 
-  void setOnStopAlarmCallback(Function callback) {
-    _onStopAlarmCallback = callback;
+  AndroidNotificationDetails _buildAndroidDetails() {
+    return const AndroidNotificationDetails(
+      _channelId,
+      _channelName,
+      channelDescription: _channelDescription,
+      color: Color(0xFF549ee1),
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('alarm_sound'),
+      category: AndroidNotificationCategory.alarm,
+      actions: [AndroidNotificationAction(stopSoundAction, 'Silence')],
+    );
   }
 
   Future<void> showTimerNotification({
@@ -99,18 +91,7 @@ class NotificationService {
   }) async {
     if (!_initialized) await initialize();
 
-    final androidDetails = const AndroidNotificationDetails(
-      'timer_channel',
-      'Timer Notifications',
-      channelDescription: 'Notifications for completed timers',
-      color: Color(0xFF549ee1),
-      importance: Importance.max,
-      priority: Priority.high,
-      playSound: false,
-      // enableVibration: _settingsProvider.isVibrationEnabled,
-      category: AndroidNotificationCategory.alarm,
-      actions: [AndroidNotificationAction(stopSoundAction, 'Silence')],
-    );
+    final androidDetails = _buildAndroidDetails();
 
     final notificationDetails = NotificationDetails(android: androidDetails);
 
@@ -134,19 +115,7 @@ class NotificationService {
       return;
     }
 
-    final androidDetails = const AndroidNotificationDetails(
-      'timer_alarm_channel', // Use the same channel as initialized
-      'Timer Alarms',
-      channelDescription: 'Notifications for timer alarms',
-      color: Color(0xFF549ee1),
-      importance: Importance.max,
-      priority: Priority.high,
-      playSound: true, // Ensure sound is enabled for scheduled notifications
-      sound: RawResourceAndroidNotificationSound('alarm_sound'), // Match channel sound
-      // enableVibration: _settingsProvider.isVibrationEnabled, // Consider settings
-      category: AndroidNotificationCategory.alarm,
-      actions: [AndroidNotificationAction(stopSoundAction, 'Silence')],
-    );
+    final androidDetails = _buildAndroidDetails();
 
     final notificationDetails = NotificationDetails(android: androidDetails);
 
