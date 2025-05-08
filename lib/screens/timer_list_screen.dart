@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart'; // Add import
 import 'package:provider/provider.dart';
 
 import '../providers/timers_provider.dart';
+import '../widgets/banner_ad_widget.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/time_wheel_picker.dart';
 import '../widgets/timer_card.dart';
@@ -315,41 +316,53 @@ class TimerListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Consumer<TimerProvider>(
-          builder: (context, timerService, child) {
-            final timers = timerService.timers;
+      body: Column(
+        children: [
+          const BannerAdWidget(),
+          Expanded(
+            child: SafeArea(
+              child: Consumer<TimerProvider>(
+                builder: (context, timerService, child) {
+                  final timers = timerService.timers;
 
-            if (timers.isEmpty) {
-              return const EmptyState(
-                icon: Icons.timer_outlined,
-                title: 'No timers yet',
-                message: 'Add a timer by tapping the + button below',
-              );
-            }
+                  if (timers.isEmpty) {
+                    return const EmptyState(
+                      icon: Icons.timer_outlined,
+                      title: 'No timers yet',
+                      message: 'Add a timer by tapping the + button below',
+                    );
+                  }
 
-            final orientation = MediaQuery.of(context).orientation;
-            return GridView.builder(
-              padding: EdgeInsets.all(context.w(12)),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: orientation == Orientation.landscape ? 3 : 2,
-                crossAxisSpacing: context.w(8),
-                mainAxisSpacing: context.h(8),
-                childAspectRatio: orientation == Orientation.landscape ? 1.1 : context.i(0.75),
+                  final orientation = MediaQuery.of(context).orientation;
+                  return GridView.builder(
+                    padding: EdgeInsets.only(
+                      left: context.w(16),
+                      right: context.w(16),
+                      bottom: context.h(16),
+                    ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: orientation == Orientation.landscape ? 3 : 2,
+                      crossAxisSpacing: context.w(8),
+                      mainAxisSpacing: context.h(8),
+                      childAspectRatio:
+                          orientation == Orientation.landscape ? 1.1 : context.h(0.75),
+                    ),
+                    itemCount: timers.length,
+                    itemBuilder: (context, index) {
+                      final timer = timers[index];
+                      return TimerCard(
+                        timer: timer,
+                        onDelete: (id) => timerService.deleteTimer(id),
+                        onToggle: (id) => timerService.toggleTimer(id),
+                        onReset: (id) => timerService.resetTimer(id),
+                      );
+                    },
+                  );
+                },
               ),
-              itemCount: timers.length,
-              itemBuilder: (context, index) {
-                final timer = timers[index];
-                return TimerCard(
-                  timer: timer,
-                  onDelete: (id) => timerService.deleteTimer(id),
-                  onToggle: (id) => timerService.toggleTimer(id),
-                  onReset: (id) => timerService.resetTimer(id),
-                );
-              },
-            );
-          },
-        ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddTimerDialog(context),
