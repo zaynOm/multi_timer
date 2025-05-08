@@ -341,8 +341,7 @@ class TimerListScreen extends StatelessWidget {
                       crossAxisCount: orientation == Orientation.landscape ? 3 : 2,
                       crossAxisSpacing: context.w(8),
                       mainAxisSpacing: context.h(8),
-                      childAspectRatio:
-                          orientation == Orientation.landscape ? 1.1 : context.h(0.75),
+                      childAspectRatio: orientation == Orientation.landscape ? 1.0 : 0.75,
                     ),
                     itemCount: timers.length,
                     itemBuilder: (context, index) {

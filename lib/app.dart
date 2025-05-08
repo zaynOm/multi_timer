@@ -28,9 +28,10 @@ class AppRoot extends StatelessWidget {
     return ScreenUtil(
       options: ScreenUtilOptions(
         designSize: const Size(376, 872),
-        fontFactorByWidth: 2.0,
+        fontFactorByWidth: 1.0,
         fontFactorByHeight: 1.0,
         flipSizeWhenLandscape: true,
+        fontScaleStrategy: ScreenUtilScaleStrategy.both,
       ),
       child: Consumer<SettingsProvider>(
         builder:
