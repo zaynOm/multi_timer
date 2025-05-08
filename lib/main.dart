@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 import 'app.dart';
+import 'providers/ad_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/timers_provider.dart';
 import 'services/service_locator.dart';
@@ -37,6 +38,7 @@ Future<void> main() async {
     providers: [
       ChangeNotifierProvider.value(value: getIt<SettingsProvider>()),
       ChangeNotifierProvider.value(value: getIt<TimerProvider>()),
+      ChangeNotifierProvider(create: (_) => AdProvider()),
     ],
     child: const AppRoot(),
   );

@@ -321,6 +321,7 @@ class TimerListScreen extends StatelessWidget {
           const BannerAdWidget(),
           Expanded(
             child: SafeArea(
+              top: false,
               child: Consumer<TimerProvider>(
                 builder: (context, timerService, child) {
                   final timers = timerService.timers;
@@ -335,11 +336,7 @@ class TimerListScreen extends StatelessWidget {
 
                   final orientation = MediaQuery.of(context).orientation;
                   return GridView.builder(
-                    padding: EdgeInsets.only(
-                      left: context.w(16),
-                      right: context.w(16),
-                      bottom: context.h(16),
-                    ),
+                    padding: EdgeInsets.all(context.w(12)),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: orientation == Orientation.landscape ? 3 : 2,
                       crossAxisSpacing: context.w(8),
