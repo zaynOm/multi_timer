@@ -19,7 +19,7 @@ class NotificationService {
   final SettingsProvider _settingsProvider;
   bool _initialized = false;
 
-  static const String _channelId = 'timer_alarm_channel';
+  static const String _channelId = 'com.anzatech.multi_timer';
   static const String _channelName = 'Timer Alarms';
   static const String _channelDescription = 'Notifications for timer alarms';
 
@@ -30,9 +30,9 @@ class NotificationService {
 
     // Create notification channel for Android
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'timer_alarm_channel',
-      'Timer Alarms',
-      description: 'Notifications for timer alarms',
+      '$_channelId.init_channel',
+      _channelName,
+      description: _channelDescription,
       importance: Importance.max,
       playSound: true,
       sound: RawResourceAndroidNotificationSound('alarm_sound'),
@@ -66,11 +66,13 @@ class NotificationService {
         ?.requestExactAlarmsPermission();
   }
 
-  void _onNotificationTapped(NotificationResponse response) {}
+  void _onNotificationTapped(NotificationResponse response) {
+    _notifications.cancel(response.id ?? 0);
+  }
 
   AndroidNotificationDetails _buildAndroidDetails() {
     return const AndroidNotificationDetails(
-      _channelId,
+      '$_channelId.alarm_channel',
       _channelName,
       channelDescription: _channelDescription,
       color: Color(0xFF549ee1),
